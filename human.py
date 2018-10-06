@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import utils
-
+import copy
 
 class human:
 	
@@ -11,9 +11,9 @@ class human:
 		self.identity = identity # who you are
 		self.age = 0 # what is time ? 
 		self.opinion = np.random.random(opinion_dims) # how you think
-		self.opinion_trace = [self.opinion]
+		self.opinion_trace = []
 		self.location = np.random.random(physic_dims) # where you are
-		self.location_trace = [self.location]
+		self.location_trace = []
 		self.view_threshold = 0.8
 		self.human_meet_set = {} # people who you meet
 		self.human_opinion_match_set = {} # people who you agree with their opinion
@@ -23,20 +23,26 @@ class human:
 		self.ability_level = 1
 		self.walk_direction = np.random.random(physic_dims) # where you go
 		self.pre_walk_direction = None
-		self.pre_location = None
 
 		
+	def get_opinion(self):
+		return self.opinion / np.sum(self.opinion)
+
+
+	def get_location(self):
+		return self.location
+
 	def add_age(self):
 		self.age += 1 # add one for each loop
 		
-	def walk(self,walk_random_level = 0,walk_influence_level = 0.01):
+	def walk(self,walk_random_level = 0.3 ,walk_influence_level = 0.01):
 		self.pre_walk_direction = self.walk_direction
-		self.pre_location = self.location
-		self.walk_direction = self.pre_walk_direction + walk_random_level * np.random.random(self.physic_dims)
+		self.walk_direction = self.pre_walk_direction + walk_random_level * np.random.normal(0,1,self.physic_dims)
 		for someone,weight in self.human_opinion_match_set_obj.items():
 			 self.walk_direction += weight * walk_influence_level * someone.pre_walk_direction 
 		self.walk_direction = self.walk_direction / np.linalg.norm(self.walk_direction)
 		self.location += self.walk_direction
+		self.location_trace.append(copy.deepcopy(self.location))
 
 	def location_match(self,someone):
 		distance = np.linalg.norm(self.location - someone.location)
@@ -107,26 +113,36 @@ class human:
 		else:
 			pass
 	
+	def plot_location_trace(self,color):
+		for i in range(1,len(self.location_trace)):
+			pre_location = self.location_trace[i-1]
+			location = self.location_trace[i]
+			plt.plot([pre_location[0],location[0]],[pre_location[1],location[1]],'{}-'.format(color),alpha=0.3)
+
 
 if __name__ == '__main__':
 
-	h1 = human('u1',physic_dims=2,opinion_dims=3)
-	h2 = human('u2',physic_dims=2,opinion_dims=3)
-	for i in range(100):
-		h1.walk()
-		h2.walk()
-		print('\nposition\n')
-		print(h1.location)
-		print(h2.location)
-		print(h1.opinion)
-		print(h2.opinion)
-		print('\ntry match\n')
-		h1.match(h2) 
-		print('\nmatch result \n')
-		print(h1.human_meet_set)
-		print(h1.human_opinion_match_set)
-		print('-'*40)
-		#plt.plot([[h1.pre_location[0],h1.location[1],h1.location])
-	#plt.show()
-	plt.plot([[1,2],[4,6]])
+	times = 20
+	human_num = 3
+	humans = []
+	for i in range(human_num):
+		humans.append(human('u{}'.format(i),physic_dims=2,opinion_dims=3))
+
+	for i in range(times):
+		for h in humans:
+			h.walk()
+		for index in range(1,human_num):
+			humans[index-1].match(humans[index],opinion_random_level=0.2,opinion_agree_level=0.5,opinion_influence_level=0.5)
+	color_generator = utils.get_color()
+	for h in humans:
+		print(h.identity,h.human_opinion_match_set)
+		print(h.identity,h.human_meet_set)
+		h.plot_location_trace(next(color_generator))
+	
+	for h in humans:
+		plt.plot(h.location_trace[-1][0],h.location_trace[-1][1],'{}.'.format(next(color_generator)))
+		print(h.get_opinion())
+		print(h.get_location())
 	plt.show()
+
+

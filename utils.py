@@ -61,6 +61,13 @@ def sampling(distribution):
 	return alias_draw(J, q)
 
 
+def get_color():
+    color_list = ['b','g','r','c','m','y','k','w']
+    while True:     
+        for c in color_list:
+            yield c
+
+
 if __name__ == '__main__':
 
 	distribution = [0.2,0.2,0.1,0.5]
