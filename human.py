@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on 2018.10.06
+
+@author: zhangjun
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
