@@ -14,7 +14,7 @@ def alias_setup(probs):
     '''
     K = len(probs)
     q = np.zeros(K)  # 对应Prob数组
-    J = np.zeros(K, dtype=np.int)  # 对应Alias数组
+    J = np.zeros(K, dtype=int)  # 对应Alias数组
     # Sort the data into the outcomes with probabilities
     # that are larger and smaller than 1/K.
     smaller = []  # 存储比1小的列
