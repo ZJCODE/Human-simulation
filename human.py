@@ -100,8 +100,9 @@ class human:
         return response
 
     def _opinion_influence(self, someone, opinion_influence_level):
+        self_opinion_orig = self.opinion.copy()
         self.opinion = self.opinion + opinion_influence_level * someone.opinion
-        someone.opinion = someone.opinion + opinion_influence_level * self.opinion
+        someone.opinion = someone.opinion + opinion_influence_level * self_opinion_orig
 
     def opinion_match(self, someone, opinion_random_level, opinion_agree_level):
         result = self._talk_to(someone, opinion_random_level, opinion_agree_level)
@@ -174,9 +175,10 @@ if __name__ == '__main__':
         t1 = time.time()
         print(h.identity, 'location match', h.human_meet_set)
         print(h.identity, 'opinion match ', h.human_opinion_match_set)
-        h.plot_location_trace(next(color_generator))
+        color = next(color_generator)
+        h.plot_location_trace(color)
 
-        plt.plot(h.location_trace[-1][0], h.location_trace[-1][1], '{}.'.format(next(color_generator)),alpha=0.5)
+        plt.plot(h.location_trace[-1][0], h.location_trace[-1][1], '{}.'.format(color),alpha=0.5)
         opinion_final += h.get_opinion()
         print(h.identity, 'location:', h.location)
         print(h.identity, 'opinion: ', h.get_opinion())
